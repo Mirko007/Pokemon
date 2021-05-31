@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 import com.vanja.pokemon.ViewModel.PokemonViewModel;
+import com.vanja.pokemon.adapter.PokemonParentRVAdapter;
 import com.vanja.pokemon.api.pojo.AbilitiesItem;
 import com.vanja.pokemon.api.pojo.Ability;
 import com.vanja.pokemon.api.pojo.PokemonResponse;
@@ -32,24 +35,14 @@ import static com.vanja.pokemon.helper.Helper.getRandom;
 
 public class MainActivity extends AppCompatActivity {
   private PokemonViewModel pokemonViewModel;
+    private RecyclerView.Adapter pokemonParentRVAdapter;
+    private RecyclerView.LayoutManager parentLayoutManager;
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
 
-    @BindView(R.id.imePokemona)
-    TextView imePOkemona;
-
-    @BindView(R.id.tv_potezi)
-    TextView tv_potezi;
-
-    @BindView(R.id.tv_stats)
-    TextView tv_stats;
-
-    @BindView(R.id.iv_front)
-    ImageView iv_front;
-
-    @BindView(R.id.iv_back)
-    ImageView iv_back;
+    @BindView(R.id.rv_PokemonParent)
+    RecyclerView rv_PokemonParent;
 
 
     @Override
@@ -66,21 +59,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(PokemonResponse pokemonResponse) {
                 if(pokemonResponse!=null){
-                    imePOkemona.setText(pokemonResponse.getName());
-                    Picasso.get().load(pokemonResponse.getSprites().getFrontDefault()).into(iv_front);
-                    Picasso.get().load(pokemonResponse.getSprites().getBackDefault()).into(iv_back);
-
-                    String abilities= "";
-                    for (AbilitiesItem ability : pokemonResponse.getAbilities()){
-                        abilities+= ability.getAbility().getName()+"\n";
-                    }
-                    tv_potezi.setText(abilities);
-
-                    String stats= "";
-                    for (StatsItem statsItem : pokemonResponse.getStats()){
-                        stats+= statsItem.getStat().getName()+":"+statsItem.getBaseStat()+ "\n";
-                    }
-                    tv_stats.setText(stats);
+                    parentLayoutManager = new LinearLayoutManager(MainActivity.this);
+                    pokemonParentRVAdapter = new PokemonParentRVAdapter(pokemonResponse, MainActivity.this);
+                    rv_PokemonParent.setLayoutManager(parentLayoutManager);
+                    rv_PokemonParent.setAdapter(pokemonParentRVAdapter);
+                    pokemonParentRVAdapter.notifyDataSetChanged();
 
                 }
             }
